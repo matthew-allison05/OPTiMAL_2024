@@ -24,7 +24,6 @@ This repository contains all of the code and files you will need to run both the
    
 **Global_Calibration.csv**: Recommended modern calibration dataset (default setting), combining the full core-top data of [Tierney & Tingley (2015)](https://doi.org/10.1038/sdata.2015.29) with additional data from [Seki et al. (2014)], as per OPTiMAL (2020).\
 **Example_Holocene.csv**: A subset of the ancient data compilation from the Holocene.\
-**OPTiMAL_MATLAB_2024.asv**: The MATLAB state after funning the code on the "Example_Holocene.csv" data. All inputs and outputs are viewable without needed to run the code.\
 **Ancient_Data_Compilation.csv**: The full ancient data compilation (n=12,256) in a format that will run directly in OPTiMAL.\
 **Ancient_Data_Compilation_Master.xlsx**: The master Excel spreadsheet containing all data compilation (site summaries, epoch-by-epoch data, data references, and age model references).\
 **OPTiMAL_Output_Holocene.xlxs**: Results of OPTiMAL running the "Example_Holocene.csv".\
