@@ -29,8 +29,8 @@ This repository contains all of the code and files you will need to run both the
 **Ancient_Data_Compilation_Master.xlsx**: The master Excel spreadsheet containing all data compilation (site summaries, epoch-by-epoch data, data references, and age model references).
 **OPTiMAL_Output_Holocene.xlxs**: Results of OPTiMAL running the "Example_Holocene.csv".
 **OPTiMAL_Output_All_Epochs.xlxs**: Results of OPTiMAL running the "Ancient_Data_Compilation.csv". 
-**OPTiMAL_Output_ODP1168.xlxs**: Results of OPTiMAL running on the data from ODP core 1168
-**OPTiMAL_Output_ODP1172.xlxs**: Results of OPTiMAL running on the data from ODP core 1172
+**OPTiMAL_Output_ODP1168.xlxs**: Results of OPTiMAL running on the data from ODP core 1168.
+**OPTiMAL_Output_ODP1172.xlxs**: Results of OPTiMAL running on the data from ODP core 1172.
 
 ## Prerequisites
 ### GPR model ('OPTiMAL')
