@@ -20,7 +20,8 @@ This repository contains all of the code and files you will need to run both the
 2) Make_Calibration_Map: Returns the maps of Figure 1, REF TO MANUSCRIPT. Calibration data are 	shown coloured by the chosen D_Values (default = median) to highlight spatial and temporal 	variations in how data contribute to a GPR prediction.
 3) OPTiMAL_SST_Timeseries: Returns the SST timeseries of Figure 2, REF TO MANUSCRIPT. 
 4) OPTiMAL_DValues_Timeseries: Returns the D_Value timeseries of Figure 3, REF TO MANUSCRIPT.
-5) ODP_1168_1172: Returns the site specific (ODP 1168 and 1172, Tasmania) timeseries of Figure 	4, REF TO MANUSCRIPT. 
+5) ODP_1168_1172: Returns the site specific (ODP 1168 and 1172, Tasmania) timeseries of Figure 	4, REF TO MANUSCRIPT.
+
 **Global_Calibration.csv**: Recommended modern calibration dataset (default setting), combining the full core-top data of [Tierney & Tingley (2015)](https://doi.org/10.1038/sdata.2015.29) with additional data from [Seki et al. (2014)], as per OPTiMAL (2020).
 **Example_Holocene.csv**: A subset of the ancient data compilation from the Holocene.
 **OPTiMAL_MATLAB_2024.asv**: The MATLAB state after funning the code on the "Example_Holocene.csv" data. All inputs and outputs are viewable without needed to run the code.
