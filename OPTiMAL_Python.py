@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
+
 """
 Created on Mon Nov 11 10:24:19 2024
 
-@author: Matthew
+@author: Matthew Allison. Contact Email: matthew.allison05@gmail.com
 
-To Do List: 
-    
-    - Get OPTiMAL gaussian working in Python 
-    - Demonstrate it makes the same predictions as in Matlab
-        - Subset of the data - show SST, error and D_values are the same
-    - If I can find a way to save the GP model, so you can just make predictions
-      instead of running a model from scratch every single time.
-    - Have OPTiMAL output formatted in the same way as MATLAB:
-        - Excel sheets - calibration, ancient, sigmas, distance
-    
-    - List of functions to prepare: 
-        - Global calibration maps
-        - Return the D_value slices for chosen quartile
-        - Return a D_values and SST prediction, showing data loss
+This script is published in conjunction with Allison et al., 2024:
+200 Ma of Lipid Drift. JOURNAL TBC. DOI Link
+Code and README housed at:
+https://github.com/matthew_allison05/OPTiMAL_2024
+
+A Breif Introduction to the code:
+    ...
+    ...
+    ...
+    ...
+    ...
 
 """
 

@@ -1,7 +1,7 @@
-%%%% This script is published in conjunction with Dunkley Jones et al., 2020.
-%%%% OPTiMAL: A new machine learning approach for GDGT-based
-%%%% palaeothermometry. Climate of the Past. doi:10.5194/cp-16-2599-2020
-%%%% Code and README housed at: https://github.com/carbonatefan/OPTiMAL
+%%%% This script is published in conjunction with Allison et al., 2024:
+%%%% 200 Ma of Lipid Drift. JOURNAL TBC. DOI Link
+%%%% Code and README housed at:
+%%%% https://github.com/matthew_allison05/OPTiMAL_2024
 
 %%%% This file:
     %%%% Reads in a csv's (calibration dataset and ancient fossil dataset)
