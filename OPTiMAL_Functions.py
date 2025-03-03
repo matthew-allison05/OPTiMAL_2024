@@ -3,19 +3,22 @@
 """
 Created on Mon Nov 11 10:24:19 2024
 
-@author: Matthew Allison. Contact Email: matthew.allison05@gmail.com
+@author: Matthew
 
-This script is published in conjunction with Allison et al., 2024:
-200 Ma of Lipid Drift. JOURNAL TBC. DOI Link
-Code and README housed at:
-https://github.com/matthew_allison05/OPTiMAL_2024
-
-A Breif Introduction to the code:
-    ...
-    ...
-    ...
-    ...
-    ...
+To Do List: 
+    
+    - Get OPTiMAL gaussian working in Python 
+    - Demonstrate it makes the same predictions as in Matlab
+        - Subset of the data - show SST, error and D_values are the same
+    - If I can find a way to save the GP model, so you can just make predictions
+      instead of running a model from scratch every single time.
+    - Have OPTiMAL output formatted in the same way as MATLAB:
+        - Excel sheets - calibration, ancient, sigmas, distance
+    
+    - List of functions to prepare: 
+        - Global calibration maps
+        - Return the D_value slices for chosen quartile
+        - Return a D_values and SST prediction, showing data loss
 
 """
 
@@ -927,6 +930,48 @@ def ODP_1168_1172(df_calibration, df_ancient, df_distance, quartile = 0.5, see_e
     plt.show()
     
     return
+
+def Failure_Rates_Palaoelatitude(epoch, ancient_df):
+    
+    df = ancient_df
+    
+    epoch = epoch
+    df_epoch = Return_Given_Epoch_df(ancient_df,epoch)
+    
+    df_pass = df_epoch[df_epoch["D_Nearest"] <= 0.5]
+    df_fails = df_epoch[df_epoch["D_Nearest"] > 0.5]
+    
+    fig = plt.figure(figsize=(20,28))
+    
+    ax = fig.add_subplot((111), projection=ccrs.Robinson(), zorder=0)
+    ax.set_global()
+    ax.set_title(f"{epoch}")
+    
+    # ax.scatter(df_pass["Palaeolongitude"].to_numpy(),df_pass["Palaeolatitude"].to_numpy(),transform =ccrs.PlateCarree())
+    
+    df_pass_x = np.cos(np.deg2rad(df_pass["Palaeolatitude"].to_numpy()))
+    df_pass_x = np.rad2deg(df_pass_x) + 90
+    
+    s = 250
+    
+    ax.scatter(df_pass_x,(df_pass["Palaeolatitude"]).to_numpy(), marker = "o", s=s, c='cornflowerblue', edgecolors ='black',transform =ccrs.PlateCarree())
+    
+    df_fails_x = np.cos(np.deg2rad(df_fails["Palaeolatitude"].to_numpy()))
+    df_fails_x = np.rad2deg(df_fails_x) + 110
+    
+    ax.scatter(df_fails_x,(df_fails["Palaeolatitude"]).to_numpy(), marker = "o", s=s, c='grey', edgecolors ='black',transform =ccrs.PlateCarree())
+
+    ax.plot(np.array([-180,180]), np.array([60,60]), c = "gray", transform =ccrs.PlateCarree(), zorder = 0)
+    ax.plot(np.array([-180,180]), np.array([30,30]), c = "gray", transform =ccrs.PlateCarree(), zorder = 0)
+    ax.plot(np.array([-180,180]), np.array([0,0]), c = "gray", transform =ccrs.PlateCarree(), zorder = 0)
+    ax.plot(np.array([-180,180]), np.array([-60,-60]), c = "gray", transform =ccrs.PlateCarree(), zorder = 0)
+    ax.plot(np.array([-180,180]), np.array([-30,-30]), c = "gray", transform =ccrs.PlateCarree(), zorder = 0)
+    
+    plt.savefig(f"Failure_Palaeolatitude_{epoch}.svg") 
+    
+    plt.show()
+
+
 
 # #%%
 

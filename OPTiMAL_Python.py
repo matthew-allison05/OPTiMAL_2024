@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
-
 """
 Created on Mon Nov 11 10:24:19 2024
 
-@author: Matthew Allison. Contact Email: matthew.allison05@gmail.com
+@author: Matthew
 
-This script is published in conjunction with Allison et al., 2024:
-200 Ma of Lipid Drift. JOURNAL TBC. DOI Link
-Code and README housed at:
-https://github.com/matthew_allison05/OPTiMAL_2024
-
-A Breif Introduction to the code:
-    ...
-    ...
-    ...
-    ...
-    ...
+To Do List: 
+    
+    - Get OPTiMAL gaussian working in Python 
+    - Demonstrate it makes the same predictions as in Matlab
+        - Subset of the data - show SST, error and D_values are the same
+    - If I can find a way to save the GP model, so you can just make predictions
+      instead of running a model from scratch every single time.
+    - Have OPTiMAL output formatted in the same way as MATLAB:
+        - Excel sheets - calibration, ancient, sigmas, distance
+    
+    - List of functions to prepare: 
+        - Global calibration maps
+        - Return the D_value slices for chosen quartile
+        - Return a D_values and SST prediction, showing data loss
 
 """
 
@@ -34,7 +36,7 @@ import OPTiMAL_Functions as fn
 
 # Get the Matlab data
 
-# Read files in - OPTiMAL_Output for Example_Holocene.csv
+# Read files in - OPTiMAL_Output for Example_Holocene.xlsx
 xls = pd.ExcelFile("OPTiMAL_Output_Holocene.xlsx")
 df_calibration = pd.read_excel(xls, 'Calibration_Data_matlab')
 df_ancient = pd.read_excel(xls, 'Ancient_Data_matlab')
@@ -46,9 +48,11 @@ xls.close()
 xls = pd.ExcelFile("OPTiMAL_Output_All_Epochs.xlsx")
 master_df_calibration = pd.read_excel(xls, 'Calibration_Data_matlab')
 master_df_ancient = pd.read_excel(xls, 'Ancient_Data_matlab')
+# This line can be slow to read in...
 master_df_distance = pd.read_excel(xls, 'Distance_Array_matlab')
 
 xls.close()
+
 
     # Example of how to return a slice of the Distance_Array from OPTiMAL.
     # In this case, return the median (quartile = 0.5) for the ancient dataset
@@ -81,3 +85,6 @@ fn.OPTiMAL_DValue_Timeseries(df_calibration, master_df_ancient, master_df_distan
     # D_Value plot.
 fn.ODP_1168_1172(df_calibration, master_df_ancient, master_df_distance, save_fig=False)
 
+    # Example of how to generate failure rate plots
+    # Just specify an epoch
+fn.Failure_Rates_Palaoelatitude('Eocene', master_df_ancient)
