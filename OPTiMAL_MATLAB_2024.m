@@ -1,5 +1,5 @@
-%%%% This script is published in conjunction with Allison et al., 2024:
-%%%% 200 Ma of Lipid Drift. JOURNAL TBC. DOI Link
+%%%% This script is published in conjunction with Allison et al., 2025:
+%%%% 200 Ma of GDGT Uniformitarianism. JOURNAL TBC. DOI Link
 %%%% Code and README housed at:
 %%%% https://github.com/matthew_allison05/OPTiMAL_2024
 
