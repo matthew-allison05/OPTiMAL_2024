@@ -2,8 +2,8 @@
 
 This directory contains code to predict sea surface temperature (SST) from the relative abundances of isoGDGTs using a Gaussian Process Regression (GPR) as described in:
 
-*[200 Ma of Lipid Drift](DOI Link TBC)\
-Matthew Allison, Tom Dunkley Jones, Sarah E. Greene, Stephen M. Jones, James A. Bendle, Ilya Mandel, Bella Duncan\
+*[Quantifying the uniformitarian assumption across 200 million years of GDGT-based temperature reconstructions](DOI Link TBC)\
+Matthew Allison, Tom Dunkley Jones, Sarah E. Greene, Stephen M. Jones, Ilya Mandel, Bella Duncan, Hana Ishii, James A. Bendle\
 Journal reference TBC. DOI Link TBC.*
 
 This directory provides an updated version of the OPTiMAL GPR code, keeping the fundamental method and built-in nearest neighbour distance screening, but extending the code to analyse GPR length-scale adjusted dimensions. The GPR analysis is provided in MATLAB in order to preserve a consistent analytical approach with MATLAB's implementation of the fitrgp function. Analysis of the MATLAB outputs is provided in a series of Python functions that enable the complete recreation of all figure presented in the manuscript (MANUSCRIPT TITLE and JOURNAL)…
@@ -22,7 +22,7 @@ This repository contains all of the code and files you will need to run both the
 4) OPTiMAL_DValues_Timeseries: Returns the CD value timeseries of Figure 3, REF TO MANUSCRIPT.
 5) ODP_1168_1172: Returns the site specific (ODP 1168 and 1172, Tasmania) timeseries of Figure 	4, REF TO MANUSCRIPT.\
 ./
-**All excel files below to be added as a supplimentary in the paper**   
+**All excel files below to be added as a supplementary in the paper**   
 **Global_Calibration.csv**: Recommended modern calibration dataset (default setting), combining the full core-top data of [Tierney & Tingley (2015)](https://doi.org/10.1038/sdata.2015.29) with additional data from [Seki et al. (2014)], as per OPTiMAL (2020).\
 **Example_Holocene.csv**: A subset of the ancient data compilation from the Holocene.\
 **Ancient_Data_Compilation.csv**: The full ancient data compilation (n=12,256) in a format that will run directly in OPTiMAL.\
