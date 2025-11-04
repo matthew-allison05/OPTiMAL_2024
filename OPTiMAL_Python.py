@@ -1,28 +1,41 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov 11 10:24:19 2024
+This script is published in conjunction with Allison et al., 2025:
+200 Ma of GDGT Uniformitarianism. JOURNAL TBC. DOI Link TBC
+Code and README housed at:
+https://github.com/matthew_allison05/OPTiMAL_2024
 
-@author: Matthew
+@author: Matthew Allison - University of Birmingham
 
-To Do List: 
-    
-    - Get OPTiMAL gaussian working in Python 
-    - Demonstrate it makes the same predictions as in Matlab
-        - Subset of the data - show SST, error and D_values are the same
-    - If I can find a way to save the GP model, so you can just make predictions
-      instead of running a model from scratch every single time.
-    - Have OPTiMAL output formatted in the same way as MATLAB:
-        - Excel sheets - calibration, ancient, sigmas, distance
-    
-    - List of functions to prepare: 
-        - Global calibration maps
-        - Return the D_value slices for chosen quartile
-        - Return a D_values and SST prediction, showing data loss
+This Python file is used to execute the pre-written functions which provide the
+code/analysis for Allison et al., 2025 - 200 Ma of GDGT Uniformitarianism.
+
+This Python script is designed to be run following intial calculations in the 
+accompanying MATLAB script.
 
 """
 
 import os
 import pandas as pd
+
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from matplotlib.colors import LinearSegmentedColormap
+import numpy as np
+import pandas as pd
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import matplotlib.colors as mcolors
+from matplotlib import gridspec
+import statsmodels.api as sm
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
+from sklearn.gaussian_process.kernels import RationalQuadratic
+import pickle
+from pathlib import Path
+from joblib import dump, load
+
 
 # Get the code directory
 code_dr = os.path.abspath(__file__)
@@ -33,6 +46,7 @@ code_dr = code_dr[:-name_length]
 os.chdir(code_dr)
 
 import OPTiMAL_Functions as fn
+
 
 # Get the Matlab data
 
@@ -53,16 +67,16 @@ master_df_distance = pd.read_excel(xls, 'Distance_Array_matlab')
 
 xls.close()
 
-
     # Example of how to return a slice of the Distance_Array from OPTiMAL.
-    # In this case, return the median (quartile = 0.5) for the ancient dataset
+    # In this case, return the median (quartile = 0.5) and inter-quartile range (IQR) for the ancient dataset
     # and append that data to the ancient dataframe.
-D_values = fn.Return_Slice_of_Distance_df(df_distance,0.5,slice_option="Ancient")
-df_ancient["D_Values"] = D_values
+CD_values, CD_IQR = fn.Return_Slice_of_Distance_df(df_distance,0.5,slice_option="Ancient")
+df_ancient["D_Values"] = CD_values
+df_ancient["CD_IQR"] = CD_IQR
 
-    # Example of how to generate a calibration map. Just give the function the 
+# Example of how to generate a calibration map. Just give the function the 
     # dataframe outputs from OPTiMAL. Some custom variables are customisable in
-    # the function definition.
+    # the function definition. 
 fn.Make_Calibration_Map(df_calibration, df_ancient, df_distance, save_fig=False)
 
     # Example of how to generate the SST timeseries from OPTiMAL against absolute
@@ -76,15 +90,14 @@ fn.OPTiMAL_SST_Timeseries(master_df_calibration, master_df_ancient, save_fig=Fal
 df_ancient_Palaeocene = fn.Return_Given_Epoch_df(master_df_ancient,"Palaeocene")
 fn.OPTiMAL_SST_Timeseries(df_calibration, df_ancient_Palaeocene, save_fig=False)
 
-    # Example of how to generate the OPTiMAL D_Value timeseries plot.
+    # Example of how to generate the OPTiMAL CD metric timeseries plot.
     # Can choose to see the geological Epochs.
-fn.OPTiMAL_DValue_Timeseries(df_calibration, master_df_ancient, master_df_distance, save_fig=False)
+fn.OPTiMAL_CDvalue_Timeseries(df_calibration, master_df_ancient, master_df_distance, save_fig=True)
 
     # Example of how to generate the ODP 1168 and 1172 plot.
     # Includes TEX86 and OPTiMAL SST comparison with additional
-    # D_Value plot.
+    # CD metric plot.
 fn.ODP_1168_1172(df_calibration, master_df_ancient, master_df_distance, save_fig=False)
 
-    # Example of how to generate failure rate plots
-    # Just specify an epoch
-fn.Failure_Rates_Palaoelatitude('Eocene', master_df_ancient)
+
+

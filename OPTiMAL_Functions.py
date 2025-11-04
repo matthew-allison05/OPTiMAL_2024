@@ -1,24 +1,18 @@
 # -*- coding: utf-8 -*-
 
 """
-Created on Mon Nov 11 10:24:19 2024
+This script is published in conjunction with Allison et al., 2025:
+200 Ma of GDGT Uniformitarianism. JOURNAL TBC. DOI Link TBC
+Code and README housed at:
+https://github.com/matthew_allison05/OPTiMAL_2024
 
-@author: Matthew
+@author: Matthew Allison - University of Birmingham
 
-To Do List: 
-    
-    - Get OPTiMAL gaussian working in Python 
-    - Demonstrate it makes the same predictions as in Matlab
-        - Subset of the data - show SST, error and D_values are the same
-    - If I can find a way to save the GP model, so you can just make predictions
-      instead of running a model from scratch every single time.
-    - Have OPTiMAL output formatted in the same way as MATLAB:
-        - Excel sheets - calibration, ancient, sigmas, distance
-    
-    - List of functions to prepare: 
-        - Global calibration maps
-        - Return the D_value slices for chosen quartile
-        - Return a D_values and SST prediction, showing data loss
+This Python file contains the pre-written functions which provide the
+code/analysis for Allison et al., 2025 - 200 Ma of GDGT Uniformitarianism.
+
+Hopefully (famous last words...) this script will not be interacted with. 
+The main script "OPTiMAL_Python.py" call generalised functions from here.
 
 """
 
@@ -32,6 +26,12 @@ import cartopy.feature as cfeature
 import matplotlib.colors as mcolors
 from matplotlib import gridspec
 import statsmodels.api as sm
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
+import pickle
+from pathlib import Path
+from joblib import dump, load
+from skmisc.loess import loess
 
 
 def Return_Slice_of_Distance_df(df_distance, quartile, slice_option="Ancient"):
@@ -50,23 +50,36 @@ def Return_Slice_of_Distance_df(df_distance, quartile, slice_option="Ancient"):
     # Get the array and the row and column count
     distance_array = df_distance.to_numpy()
     row, col = distance_array.shape
+
     
     # Slice for calibraiton data (by row)
     if slice_option == "Calibration":
         D_values = np.zeros(col)
+        IQR_values = np.zeros(col)
         for n in range(0,(col)):
             data = distance_array[:,n]
             quant = np.nanquantile(data,quartile)
+            pop_var = np.var(data)     
+            # q25 = np.nanquantile(data, 0.25)
+            # q75 = np.nanquantile(data, 0.75)
+            # iqr = q75 - q25
             D_values[n] = quant
+            IQR_values[n] = pop_var
     # Slice for ancient data (by col)        
     elif slice_option == "Ancient":
         D_values = np.zeros(row)
+        IQR_values = np.zeros(row)
         for n in range(0,(row)):
             data = distance_array[n,:]
             quant = np.nanquantile(data,quartile)
+            pop_var = np.var(data)     
+            # q25 = np.nanquantile(data, 0.25)
+            # q75 = np.nanquantile(data, 0.75)
+            # iqr = q75 - q25
             D_values[n] = quant
+            IQR_values[n] = pop_var
     
-    return D_values
+    return D_values, IQR_values
 
 def Return_Given_Epoch_df(df_ancient, Epoch):
     # Inputs: 
@@ -166,16 +179,16 @@ def Make_Calibration_Map(df_calibration, df_ancient, df_distance, cmin=2, cmax=5
     # Gets slice of D_Value array fromt he ancient and modern data
     quartile = quartile
     df_distance = df_distance
-    D_values = Return_Slice_of_Distance_df(df_distance,quartile,slice_option="Ancient")
-    df_ancient["D_Values"] = D_values
+    CD_values, CD_IQR = Return_Slice_of_Distance_df(df_distance,quartile,slice_option="Ancient")
+    df_ancient["D_Values"] = CD_values
 
-    D_values = Return_Slice_of_Distance_df(df_distance,quartile,slice_option="Calibration")
-    df_calibration["D_Values"] = D_values
+    CD_values, CD_IQR = Return_Slice_of_Distance_df(df_distance,quartile,slice_option="Calibration")
+    df_calibration["D_Values"] = CD_values
     
     # Get the lat lon data of the calibration data
     lon = df_calibration["Longitude"].to_numpy()
     lat = df_calibration["Latitude"].to_numpy()
-    c = D_values
+    c = CD_values
 
     # Collect data ready for plotting
     xyc = np.stack((lat,lon,c), axis=-1)
@@ -232,7 +245,7 @@ def OPTiMAL_SST_Timeseries(df_calibration, df_ancient, see_QC_Fail=True, see_epo
     # maintaining the aspect ratio
 
     multiplier = 7
-    fig_ratio_x = 3 * multiplier
+    fig_ratio_x = 5 * multiplier
     fig_ratio_y = 2 * multiplier
     
     fig, ax = plt.subplots(1,1,
@@ -429,7 +442,7 @@ def OPTiMAL_SST_Timeseries(df_calibration, df_ancient, see_QC_Fail=True, see_epo
     return
         
      
-def OPTiMAL_DValue_Timeseries(df_calibration, df_ancient, df_distance, quartile = 0.5, see_epochs=True, save_fig=False):   
+def OPTiMAL_CDvalue_Timeseries(df_calibration, df_ancient, df_distance, quartile = 0.5, see_epochs=True, save_fig=False):   
     # Inputs: 
     #   - df_calibration: Calibration data
     #   - df_ancient: Ancient data
@@ -445,7 +458,7 @@ def OPTiMAL_DValue_Timeseries(df_calibration, df_ancient, df_distance, quartile 
     # maintaining the aspect ratio
     
     multiplier = 7
-    fig_ratio_x = 3 * multiplier
+    fig_ratio_x = 5 * multiplier
     fig_ratio_y = 2 * multiplier
     
     fig, ax = plt.subplots(1,1,
@@ -454,8 +467,11 @@ def OPTiMAL_DValue_Timeseries(df_calibration, df_ancient, df_distance, quartile 
     fig.suptitle("OPTiMAL D_Values Timeseries", fontsize = 30)
     
     # Gets slice of D_Value array fromt he ancient and modern data
-    D_values = Return_Slice_of_Distance_df(df_distance,quartile,slice_option="Ancient")
-    df_ancient["D_Values"] = D_values
+    # D_values = Return_Slice_of_Distance_df(df_distance,quartile,slice_option="Ancient")
+    # df_ancient["D_Values"] = D_values
+    CD_values, CD_IQR = Return_Slice_of_Distance_df(df_distance,0.5,slice_option="Ancient")
+    df_ancient["D_Values"] = CD_values
+    df_ancient["CD_IQR"] = CD_IQR
     
     # Add the generally useful Palaeolatitude absolute column
     df_ancient["Palaeolatitude_abs"] = abs(df_ancient["Palaeolatitude"])
@@ -464,39 +480,67 @@ def OPTiMAL_DValue_Timeseries(df_calibration, df_ancient, df_distance, quartile 
     trimmer = 14
     df_ancient = df_ancient[df_ancient["D_Values"] < trimmer]
     
+    # Preps a small df and runs the loess regression
+    def prep_df(df, x='x', y='y', var='var'):
+        """
+        Return a clean slice with columns: x, y, sigma
+        - Coerces to numeric
+        - Drops NaN/inf
+        - Requires sigma > 0
+        - Sorts by x
+        """
+        out = df[[x, y, var]].copy()
+        out.columns = ['x', 'y', 'var']
+        # make numeric & clean
+        for c in ['x','y','var']:
+            out[c] = pd.to_numeric(out[c], errors='coerce')
+        out = (out
+               .replace([np.inf, -np.inf], np.nan)
+               .dropna(subset=['x','y','var']))
+        out = out[out['var'] > 0]
+        return out.sort_values('x').reset_index(drop=True)
+    
+    out = prep_df(df_ancient, x='Age', y='D_Values', var='CD_IQR')
+    
+    x = out["x"].to_numpy()
+    y = out["y"].to_numpy()
+    w = out["var"].to_numpy()
+    w = 1/w
+    
+    l = loess(x, y, weights=w, span=0.0075, degree=2, family="symmetric")
+    l.fit()
+    
+    x_new = np.linspace(x.min(), x.max(), 800)
+    pred = l.predict(x_new, stderror=True)
+    
+    y_hat = pred.values           # fitted curve
+    y_se  = pred.stderr           # pointwise SE
+    ci    = pred.confidence(0.05) # 95% CI
+    lo, hi = ci.lower, ci.upper
+        
     # Separate out pass and fails using D_Nearest <= 0.5
     df_ancient_pass = df_ancient[df_ancient["D_Nearest"] <= 0.5]
     df_ancient_fail = df_ancient[df_ancient["D_Nearest"] > 0.5]
     
     x_temp = df_ancient_fail["Age"].to_numpy()
     y_temp = df_ancient_fail["D_Values"].to_numpy()
-    ax.scatter(x_temp,y_temp,marker = 'x', c = 'k', s=50,
+    ax.scatter(x_temp,y_temp,marker = 'x', c = 'gray', s=50,
                 label="OPTiMAL Fail, D_Nearest > 0.5", alpha = 0.5, zorder = 1) 
     
     x_temp = df_ancient_pass["Age"].to_numpy()
     y_temp = df_ancient_pass["D_Values"].to_numpy()
-    ax.scatter(x_temp,y_temp,marker = 'o', c = 'cornflowerblue',# edgecolors='black',
-                linewidth=0.5 ,s = 150, label="OPTiMAL Pass, D_Nearest <= 0.5", edgecolor='black', alpha = 0.75, zorder = 1)  
-        
-    x_temp = df_ancient["Age"].to_numpy()
-    y_temp = df_ancient["D_Values"].to_numpy()
-    x_max = np.max(x_temp)
-    x_min = np.min(x_temp)
-    x_range = x_max - x_min
-    res = 2.5/x_range
-
-    if res >= 1:
-        res = 1
-    # ax1.scatter(x_temp,y_temp,marker='X', s=100, alpha = 1)
-
-    smoothed = sm.nonparametric.lowess(exog=x_temp, endog=y_temp, frac=res)
-
-    ax.plot(smoothed[:, 0], smoothed[:, 1], c= 'white',
-             linewidth=8, alpha = 1, zorder=4)
-
-    ax.plot(smoothed[:, 0], smoothed[:, 1], c= 'r',
-             linewidth=5, label="Loess Regression", alpha = 0.6, zorder=5)
+    # ax.scatter(x_temp,y_temp,marker = 'o', c = 'cornflowerblue',# edgecolors='black',
+    #             linewidth=0.5 ,s = 150, label="OPTiMAL Pass, D_Nearest <= 0.5", edgecolor='black', alpha = 0.75, zorder = 1)  
+    # ax.scatter(x_temp,y_temp,marker = 'o', c = 'cornflowerblue', s=50,
+    #             label="OPTiMAL Pass, D_Nearest <= 0.5", alpha = 0.5, zorder = 1) 
+    ax.scatter(x_temp,y_temp,marker = 'o', c = 'cornflowerblue', s=50,
+                label="OPTiMAL Fail, D_Nearest > 0.5", alpha = 0.6, zorder = 1)  
     
+    ax.plot(x_new, pred, 'r-', linewidth=5, label='GPR mean', zorder=5)
+    # y_pred, y_std = gpr.predict(x_pred, return_std=True)
+    ax.fill_between(x_new, lo, hi, color='coral', alpha=0.7, label='LOESS 95th% band', zorder=4)
+    ax.set_ylim((0,15))
+       
     if see_epochs == True:
         # Adds a visual aid of Epochs along the bottom of the palaeolatitude plot
         x_box = 0
@@ -533,15 +577,15 @@ def OPTiMAL_DValue_Timeseries(df_calibration, df_ancient, df_distance, quartile 
     ax.set_ylim(0, trimmer)
     
     plt.xlabel("Age [Ma]")
-    plt.ylabel("OPTiMAL D_Values")
+    plt.ylabel("OPTiMAL CD_Median Values")
    
     ax.legend()
     
         
     # If save_fig is True, save the figure as a png and svg file
     if save_fig == True:
-        plt.savefig("OPTiMAL_D_Values_Timeseries.svg") 
-        plt.savefig("OPTiMAL_D_Values_Timeseries.png")
+        plt.savefig("OPTiMAL_CD_Values_Timeseries.svg") 
+        plt.savefig("OPTiMAL_CD_Values_Timeseries.png")
     else:
         pass
     
@@ -701,7 +745,7 @@ def ODP_1168_1172(df_calibration, df_ancient, df_distance, quartile = 0.5, see_e
     
     ax1.legend()
 
-    # Axis 3 ~~~~~~ OPTiMAL D_Value Plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Axis 3 ~~~~~~ OPTiMAL CD_Value Plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     # Much of the following code is identical in structure to the first subplot
     # so I will not re-comment. Temporary xy's and df's were used for this reason
@@ -912,7 +956,7 @@ def ODP_1168_1172(df_calibration, df_ancient, df_distance, quartile = 0.5, see_e
     
     ax1.set_ylabel("TEX86 Derived SST [oC]")
     ax2.set_ylabel("TEX86")
-    ax3.set_ylabel("OPTiMAL D_Values")
+    ax3.set_ylabel("OPTiMAL CD_median")
     ax4.set_ylabel("OPTiMAL SST Predictions [oC]")
     
     ax1.set_xlim((min(df_site_combo["Age"]),max(df_site_combo["Age"])))
