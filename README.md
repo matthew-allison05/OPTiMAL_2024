@@ -25,12 +25,12 @@ This repository contains all of the code and files you will need to run both the
 **All excel files below to be added as a supplementary in the paper**   
 **Global_Calibration.csv**: Recommended modern calibration dataset (default setting), combining the full core-top data of [Tierney & Tingley (2015)](https://doi.org/10.1038/sdata.2015.29) with additional data from [Seki et al. (2014)], as per OPTiMAL (2020).\
 **Example_Holocene.csv**: A subset of the ancient data compilation from the Holocene.\
-**Ancient_Data_Compilation.csv**: The full ancient data compilation (n=12,256) in a format that will run directly in OPTiMAL.\
+**Ancient_Data_Compilation.csv**: The full ancient data compilation (n=12,256) in a format that will run directly in OPTiMAL_Matlab_2024.m.\
 **Ancient_Data_Compilation_Master.xlsx**: The master Excel spreadsheet containing all data compilation (site summaries, epoch-by-epoch data, data references, and age model references).\
-**OPTiMAL_Output_Holocene.xlxs**: Results of OPTiMAL running the "Example_Holocene.csv".\
-**OPTiMAL_Output_All_Epochs.xlxs**: Results of OPTiMAL running the "Ancient_Data_Compilation.csv".\
-**OPTiMAL_Output_ODP1168.xlxs**: Results of OPTiMAL running on the data from ODP core 1168.\
-**OPTiMAL_Output_ODP1172.xlxs**: Results of OPTiMAL running on the data from ODP core 1172
+**OPTiMAL_Output_Holocene.xlxs**: Results of OPTiMAL_Matlab_2024.m running the "Example_Holocene.csv".\
+**OPTiMAL_Output_All_Epochs.xlxs**: Results of OPTiMAL_Matlab_2024.m running the "Ancient_Data_Compilation.csv".\
+**OPTiMAL_Output_ODP1168.xlxs**: Results of OPTiMAL_Matlab_2024.m running on the data from ODP core 1168.\
+**OPTiMAL_Output_ODP1172.xlxs**: Results of OPTiMAL_Matlab_2024.m running on the data from ODP core 1172
 
 ## Prerequisites
 ### GPR model ('OPTiMAL')
@@ -90,7 +90,7 @@ OPTiMAL_Output.xlsx
 
 and return the figures and underlying data presented in REF TO MANUSCRIPT.
 
-To use this code, open the OPTiMAL_Python.py file. A series of generalised functions are called from a separate script (OPTiMAL_Functions.py) to streamline the amount of code the user has to interact with. Fully commented code is provided in "OPTiMAL_Functions.py" detailing all inputs and outputs for every function. Ensure the OPTiMAL_Output.xlsx is saved in the same directory as the .py script. D_value metric is generated using the function "Return_Slice_of_Distance_df". For all figure plotting functions, "save_fig = True/False" can be used to save the output of figure plotting as both a .png and .svg file. 
+To use this code, open the OPTiMAL_Python.py file. A series of generalised functions are called from a separate script (OPTiMAL_Functions.py) to streamline the amount of code the user has to interact with. Fully commented code is provided in "OPTiMAL_Functions.py" detailing all inputs and outputs for every function. Ensure the OPTiMAL_Output.xlsx is saved in the same directory as the .py script. CD metric is generated using the function "Return_Slice_of_Distance_df". For all figure plotting functions, "save_fig = True/False" can be used to save the output of figure plotting as both a .png and .svg file. 
 
 ## Publishing outputs from this code
 
